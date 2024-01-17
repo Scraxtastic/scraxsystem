@@ -1,0 +1,1 @@
+screen -dmS scraxsystemClient node ./build/client.js name=pizero

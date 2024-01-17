@@ -1,0 +1,1 @@
+{"sockets":[],"socketConnections":{"connected":0,"disconnected":4,"lastConnectionTime":1705526029255,"names":["pizero","pi4b"],"failedLogins":0},"webSockets":[{"name":"pizero","ip":"::ffff:127.0.0.1","port":55252}],"websocketConnections":{"connected":1,"disconnected":0,"lastConnectionTime":1705525993042,"names":["pizero"],"failedLogins":0}}

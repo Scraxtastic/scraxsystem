@@ -15,7 +15,7 @@ function generateRSAKeys() {
       passphrase: "your-secure-passphrase",
     },
   });
-  console.log("key keys:", Object.keys(key));
+  // console.log("key keys:", Object.keys(key));
   const { privateKey, publicKey } = key;
 
   return { privateKey, publicKey };

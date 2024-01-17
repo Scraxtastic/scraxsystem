@@ -17,7 +17,7 @@ const ensureDir = (folderPath: string) => {
 };
 
 const getKey = (name: string) => {
-  const dir = path.join(__dirname, "./keys");
+  const dir = path.join(__dirname, "../keys");
   ensureDir(dir);
   const files = fs.readdirSync(dir);
   for (const file of files) {
@@ -43,6 +43,7 @@ const findKey = (message: Buffer) => {
       return decrypted;
     }
   }
+  return null;
 };
 
 const createKey = (key: Buffer, name: string) => {
