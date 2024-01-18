@@ -7,8 +7,9 @@
     "start": "npm run build && node .",
     "start:server": "npm run build && node ./build/server.js",
     "start:client": "npm run build && node ./build/client.js",
+    "start:web": "npm run build && node ./build/webClient.js",
     "start:create": "npm run build && node ./build/createKeys.js",
-    "dev": "nodemon src/index.ts",
+    "dev": "nodemon src/index.ts name=invader",
     "build": "tsc",
     "test": "jest --detectOpenHandles"
   },

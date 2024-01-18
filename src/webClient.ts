@@ -14,6 +14,12 @@ const sendMessages = (socket: WebSocket, key: Buffer, name: string) => {
     console.log("WClient:", "Connected to server.");
     sendEncryptedMessage(socket, Buffer.from(name), key);
   });
+  socket.on("error", (err) => {
+    console.log("WClient:", "Socket error:", err.name, err.message);
+  });
+  socket.on("unexpected-response", (req, res) => {
+    console.log("WClient:", "Unexpected response:", res);
+  });
 
   socket.on("message", (data: Buffer) => {
     const decrypted = unpackageAndDecryptData(data, key);
@@ -27,11 +33,8 @@ const sendMessages = (socket: WebSocket, key: Buffer, name: string) => {
 };
 
 const createConnection = (ip: string, name: string) => {
-  const serverPort = +process.env.PORT || 8990;
   const key = getKey(name);
   const socket = new WebSocket(ip);
-  //   console.log("key", key);
-  // const key = randomBytes(32);
   sendMessages(socket, key, name);
 };
 
@@ -48,5 +51,12 @@ setTimeout(() => {
       name = val.split("=")[1];
     }
   });
+  if (name == "") {
+    name = process.env.name;
+  }
+  if (name == "") {
+    console.log("WClient:", "name not set");
+    process.exit(1);
+  }
   startClient(name);
 }, 1000);

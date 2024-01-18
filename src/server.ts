@@ -10,11 +10,17 @@ let socketConnections: any = {};
 let websocketManager: any = {};
 let websocketConnections: any = {};
 
+process.on("uncaughtException", (err) => {
+  console.log(`Uncaught Exception: ${err}`);
+  process.exit(1);
+});
+
 const createServer = () => {
   const server = new Server();
   server.on("connection", handleNewConnection);
   server.on("error", (err) => console.error("Server:", err));
   server.on("close", () => console.log("Server:", "Server closed."));
+  server.on("error", (err) => console.log("Server:", "ServerSocket", err));
   const serverPort = +process.env.serverport || 8989;
   server.listen(serverPort);
   console.log("Server:", "Server listening on port " + serverPort);
@@ -40,9 +46,14 @@ const handleNewConnection = (socket: Socket) => {
   let key: Buffer = null;
   let name: string = "NOT SET";
   const sendData = (buf: Buffer) => {
-    console.log("Server:", "Sending data:", buf.toString("base64"));
     socket.write(buf);
   };
+  socket.on("error", (err) => {
+    console.log("Server:", `${name} crashed. (IP: ${socket.remoteAddress})`);
+  });
+  socket.on("timeout", () => {
+    console.log("Server:", `${name} timed out. (IP: ${socket.remoteAddress})`);
+  });
   socket.on("close", () => {
     delete socketManager[name];
     socketConnections[socket.remoteAddress].connected--;
@@ -63,7 +74,6 @@ const handleNewConnection = (socket: Socket) => {
         return;
       }
       const data = unpackageAndDecryptData(encryptedData, key);
-      console.log("Server:", "Client Key", key.toString("base64"));
       name = data.toString();
       if (socketConnections[socket.remoteAddress].names.indexOf(name) === -1) {
         socketConnections[socket.remoteAddress].names.push(name);
@@ -105,9 +115,8 @@ const handleNewWebsocketConnection = (socket: WebSocket, req: IncomingMessage) =
     socket.send(buf);
   };
 
-  socket.on("close", () => console.log("WServer:", `${req.socket.remoteAddress} disconnected. (IP: ${socket.url})`));
+  socket.on("close", () => console.log("WServer:", `${name} disconnected. (IP: ${req.socket.remoteAddress})`));
   socket.on("message", (encryptedData: Buffer) => {
-    console.log("WServer:", "Received data:", encryptedData.toString("base64"));
     if (messageCount === 0) {
       websocketConnections[req.socket.remoteAddress].lastConnectionTime = new Date().getTime();
       key = findKey(encryptedData);
@@ -122,6 +131,11 @@ const handleNewWebsocketConnection = (socket: WebSocket, req: IncomingMessage) =
       }
       const data = unpackageAndDecryptData(encryptedData, key);
       name = data.toString();
+      if (name === "") {
+        sendData(Buffer.from("No name provided"));
+        socket.close();
+        return;
+      }
       if (websocketConnections[req.socket.remoteAddress].names.indexOf(name) === -1) {
         websocketConnections[req.socket.remoteAddress].names.push(name);
       }

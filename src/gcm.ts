@@ -1,6 +1,6 @@
 import { randomBytes, createCipheriv, createDecipheriv } from "crypto";
 
-const ivLength = 12; // 12 bytes IV is recommended for GCM
+const ivLength = 24;
 const authTagLength = 16; // 16 bytes authentication tag is recommended for GCM
 
 const encryptData = (data: Buffer, key: Buffer, iv: Buffer): { encryptedData: Buffer; authTag: Buffer } => {
@@ -27,7 +27,7 @@ const packageData = (iv: Buffer, encryptedData: Buffer, authTag: Buffer): Buffer
 };
 
 const unpackageData = (dataPackage: Buffer): { iv: Buffer; encryptedData: Buffer; authTag: Buffer } => {
-  const iv = dataPackage.subarray(0, ivLength); // IV is 12 bytes
+  const iv = dataPackage.subarray(0, ivLength);
   const authTag = dataPackage.subarray(dataPackage.length - authTagLength); // authTag is 16 bytes
   const encryptedData = dataPackage.subarray(ivLength, dataPackage.length - authTagLength);
 

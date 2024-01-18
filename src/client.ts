@@ -9,15 +9,17 @@ const sendEncryptedMessage = (socket: Socket, data: Buffer, key: Buffer) => {
 };
 
 const sendMessages = (socket: Socket, key: Buffer, name: string) => {
+  let interval: NodeJS.Timeout = null;
   socket.on("connect", () => {
     console.log("Client:", "Connected to server.");
     sendEncryptedMessage(socket, Buffer.from(name), key);
+
+    interval = setInterval(() => {
+      const message = "Still alive!";
+      console.log("Client:", message);
+      sendEncryptedMessage(socket, Buffer.from(message), key);
+    }, 5500);
   });
-  const interval = setInterval(() => {
-    const message = "Still alive!";
-    console.log("Client:", message);
-    sendEncryptedMessage(socket, Buffer.from(message), key);
-  }, 5500);
 
   socket.on("data", (data: Buffer) => {
     const decrypted = unpackageAndDecryptData(data, key);
@@ -26,10 +28,6 @@ const sendMessages = (socket: Socket, key: Buffer, name: string) => {
     // }
     console.log("Client:", "Received data:", decrypted.toString());
   });
-
-  setTimeout(() => {
-    socket.end();
-  }, 20000);
 
   socket.on("close", () => {
     console.log("Client:", "Socket closed.");
@@ -40,7 +38,7 @@ const sendMessages = (socket: Socket, key: Buffer, name: string) => {
 const createConnection = (ip: string, name: string) => {
   const socket = new Socket();
   const key = getKey(name);
-  console.log("Client:", "key", key.toString("base64"));
+  console.log("Client:", "key");
   // const key = randomBytes(32);
   const serverPort = +process.env.PORT || 8989;
   socket.connect(serverPort, ip);
@@ -62,13 +60,3 @@ setTimeout(() => {
   });
   startClient(name);
 }, 1000);
-
-setTimeout(() => {
-  let name = "";
-  process.argv.forEach(function (val, index, array) {
-    if (val.includes("name=")) {
-      name = val.split("=")[1];
-    }
-  });
-  startClient(name);
-}, 20000);
