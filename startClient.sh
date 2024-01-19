@@ -1,1 +1,4 @@
-screen -dmS scraxsystemClient node ./build/client.js name=pizero
+#!/bin/bash
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+cd "$SCRIPT_DIR"
+node ./build/client.js
