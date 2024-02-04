@@ -1,0 +1,2 @@
+- Show name on connect
+- add name to the socket objects

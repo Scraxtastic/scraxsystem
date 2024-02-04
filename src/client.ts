@@ -16,7 +16,7 @@ const sendMessages = (socket: Socket, key: Buffer, name: string) => {
 
     interval = setInterval(() => {
       const message = "Still alive!";
-      console.log("Client:", message);
+      console.log("Client:", "->", message);
       sendEncryptedMessage(socket, Buffer.from(message), key);
     }, 5500);
   });
@@ -26,7 +26,7 @@ const sendMessages = (socket: Socket, key: Buffer, name: string) => {
     // if (decrypted === null) {
     //   return;
     // }
-    console.log("Client:", "Received data:", decrypted.toString());
+    console.log("Client:", "<-", "Received data:", decrypted.toString());
   });
 
   socket.on("close", () => {
