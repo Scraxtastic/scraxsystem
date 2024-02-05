@@ -1,7 +1,7 @@
 import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
 
 const key = Buffer.from("bi7kdNhA7R3ZsMkv5Ct5Ka0o+hDeDq8h4MzDUzEnZh8=", "base64");
-const iv = Buffer.from("oVtoejvQgwxp4h67oKQJ/w==", "base64");
+export const iv = Buffer.from("oVtoejvQgwxp4h67oKQJ/w==", "base64");
 const ivLength = 16;
 
 const encryptFileData = (data: Buffer): Buffer => {

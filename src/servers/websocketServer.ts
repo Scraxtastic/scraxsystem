@@ -37,16 +37,18 @@ const handleNewWebsocketConnection = (socket: WebSocket, req: IncomingMessage) =
     socket.send(data);
   };
 
-  socket.on("close", () => console.log("WServer:", `${name} disconnected. (IP: ${req.socket.remoteAddress})`));
+  socket.on("close", () => {
+    console.log("WServer:", `${name} disconnected. (IP: ${req.socket.remoteAddress})`);
+    serverStorage.websocketConnections[req.socket.remoteAddress].connected--;
+    serverStorage.websocketConnections[req.socket.remoteAddress].disconnected++;
+    clearInterval(interval);
+  });
   const handleFirstMessage = (encryptedData: Buffer) => {
     serverStorage.websocketConnections[req.socket.remoteAddress].lastConnectionTime = new Date().getTime();
     key = findKeyCBC(encryptedData);
     // console.log("FoundKey", key, key.toString("base64"));
     if (key === null || key === undefined) {
       console.log("WServer:", "No key found");
-      serverStorage.websocketConnections[req.socket.remoteAddress].failedLogins++;
-      serverStorage.websocketConnections[req.socket.remoteAddress].connected--;
-      serverStorage.websocketConnections[req.socket.remoteAddress].disconnected++;
       socket.close();
       return;
     }
@@ -55,6 +57,7 @@ const handleNewWebsocketConnection = (socket: WebSocket, req: IncomingMessage) =
     name = data.toString();
     if (name === "") {
       sendData(Buffer.from("No name provided"));
+      serverStorage.websocketConnections[req.socket.remoteAddress].failedLogins++;
       socket.close();
       return;
     }
@@ -82,8 +85,8 @@ const handleNewWebsocketConnection = (socket: WebSocket, req: IncomingMessage) =
   });
 
   const collectAndSendData = () => {
-    console.log("WServer:", `Collect and send data to ${name}.`);
-    const data = Buffer.from(JSON.stringify(serverStorage.getConnectInformation()));
+    // console.log("WServer:", `Collect and send data to ${name}.`);
+    const data = Buffer.from(JSON.stringify(serverStorage.getConnectInformation()), "utf-8");
     let encryptedData = encryptAndPackageData(data, key);
     for (let i = 0; i < wrapperKeys.length; i++) {
       encryptedData = encryptAndPackageData(encryptedData, Buffer.from(wrapperKeys[i], "base64"));

@@ -1,15 +1,15 @@
 import { WebSocket } from "ws";
 import "dotenv/config";
 import { getKey } from "./fileManager";
-import { encryptAndPackageData, unpackageAndDecryptData } from "./cbc";
+import { encryptAndPackageData, iv, unpackageAndDecryptData } from "./cbc";
 import fs from "fs";
 import { wrapperKeys } from "./wrapperKeys";
 console.log("WClient:", "started client");
 
 const sendEncryptedMessage = (socket: WebSocket, data: Buffer, key: Buffer) => {
-  let encryptedData = encryptAndPackageData(data, key);
+  let encryptedData = encryptAndPackageData(data, key, iv);
   for (let i = 0; i < wrapperKeys.length; i++) {
-    encryptedData = encryptAndPackageData(encryptedData, Buffer.from(wrapperKeys[i], "base64"));
+    encryptedData = encryptAndPackageData(encryptedData, Buffer.from(wrapperKeys[i], "base64"), iv);
   }
   socket.send(encryptedData);
 };
@@ -38,9 +38,14 @@ const sendMessages = (socket: WebSocket, key: Buffer, name: string) => {
   });
 
   socket.on("message", (data: Buffer) => {
-    const decrypted = decryptMessage(data, key);
-    console.log("WClient:", "Received data:", decrypted.toString());
-    fs.writeFileSync("./output.json", decrypted.toString());
+    try {
+      const decrypted = decryptMessage(data, key);
+      console.log("WClient:", "Received data:", decrypted.toString());
+      fs.writeFileSync("./output.json", decrypted.toString());
+    } catch (e) {
+      socket.send("Error: " + "Decryption failed.");
+      socket.close();
+    }
   });
 
   socket.on("close", () => {
@@ -50,6 +55,7 @@ const sendMessages = (socket: WebSocket, key: Buffer, name: string) => {
 
 const createConnection = (ip: string, name: string) => {
   const key = getKey(name);
+  console.log("WClient", `key ${name} retrieved`);
   const socket = new WebSocket(ip);
   sendMessages(socket, key, name);
 };

@@ -38,7 +38,7 @@ const sendMessages = (socket: Socket, key: Buffer, name: string) => {
 const createConnection = (ip: string, name: string) => {
   const socket = new Socket();
   const key = getKey(name);
-  console.log("Client:", "key");
+  console.log("Client:", `key ${name} retrieved`);
   // const key = randomBytes(32);
   const serverPort = +process.env.PORT || 8989;
   socket.connect(serverPort, ip);
@@ -58,5 +58,12 @@ setTimeout(() => {
       name = val.split("=")[1];
     }
   });
+  if (name == "") {
+    name = process.env.name;
+  }
+  if (name == "") {
+    console.log("WClient:", "name not set");
+    process.exit(1);
+  }
   startClient(name);
 }, 1000);

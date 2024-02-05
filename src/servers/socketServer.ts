@@ -11,7 +11,9 @@ const serverStorage: ServerStorage = ServerStorage.getInstance();
 export const createSocketServer = () => {
   const server = new Server();
   server.on("connection", handleNewConnection);
-  server.on("close", () => console.log("Server:", "Server closed."));
+  server.on("close", () => {
+    console.log("Server:", "Server closed.");
+  });
   server.on("error", (err) => console.log("Server:", "ServerSocket", err));
   const serverPort = +process.env.serverport || 8989;
   server.listen(serverPort);
