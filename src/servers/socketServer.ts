@@ -66,7 +66,7 @@ const handleData = (encryptedData: Buffer, socket: Socket, keyName: { name: stri
   const sendData = (buf: Buffer) => {
     socket.write(buf);
   };
-  console.log("Server:", "HandleData");
+  // console.log("Server:", "HandleData");
   serverStorage.socketConnections[socket.remoteAddress].lastConnectionTime = new Date().getTime();
   if (keyName.key === undefined) {
     handleLogin(keyName, encryptedData, socket);
