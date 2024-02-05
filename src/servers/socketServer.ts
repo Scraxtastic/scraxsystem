@@ -4,8 +4,6 @@ import { findKeyGCM } from "../fileManager";
 import { encryptAndPackageData, unpackageAndDecryptData } from "../gcm";
 import { ServerStorage } from "./serverStorage";
 
-let messageCount = 0;
-
 const serverStorage: ServerStorage = ServerStorage.getInstance();
 
 export const createSocketServer = () => {
@@ -44,8 +42,9 @@ const handleNewConnection = (socket: Socket) => {
     handleClose(keyName.name, socket);
   });
   socket.on("data", (encryptedData: Buffer) => {
-    handleData(encryptedData, socket, messageCount, keyName);
+    handleData(encryptedData, socket, keyName);
   });
+  console.log("Server:", "New Connection End");
 };
 
 const handleError = (err: Error, name: string, socket: Socket) => {
@@ -63,17 +62,13 @@ const handleClose = (name: string, socket: Socket) => {
   console.log("Server:", `${name} disconnected. (IP: ${socket.remoteAddress})`);
 };
 
-const handleData = (
-  encryptedData: Buffer,
-  socket: Socket,
-  messageCount: number,
-  keyName: { name: string; key: Buffer }
-) => {
+const handleData = (encryptedData: Buffer, socket: Socket, keyName: { name: string; key: Buffer }) => {
   const sendData = (buf: Buffer) => {
     socket.write(buf);
   };
+  console.log("Server:", "HandleData");
   serverStorage.socketConnections[socket.remoteAddress].lastConnectionTime = new Date().getTime();
-  if (messageCount === 0) {
+  if (keyName.key === undefined) {
     handleLogin(keyName, encryptedData, socket);
     return;
   }
@@ -94,6 +89,7 @@ const handleLogin = (keyName: { key: Buffer; name: string }, encryptedData: Buff
   const sendData = (buf: Buffer) => {
     socket.write(buf);
   };
+  console.log("Server", "HandleLogin");
   keyName.key = findKeyGCM(encryptedData);
   // console.log("FoundKey", key, key.toString("base64"));
   if (keyName.key === null || keyName.key === undefined) {
@@ -122,5 +118,4 @@ const handleLogin = (keyName: { key: Buffer; name: string }, encryptedData: Buff
   }
   keyName.name = name;
   serverStorage.socketManager[name] = { socket, key: keyName.key, name: keyName.name, data: "" };
-  messageCount++;
 };
