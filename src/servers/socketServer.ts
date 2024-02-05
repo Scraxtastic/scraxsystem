@@ -85,7 +85,7 @@ const handleResponse = (sendData: (buf: Buffer) => void, encryptedData: Buffer, 
   if (data === null) {
     return;
   }
-  serverStorage.socketManager[name].data = data.toString("base64");
+  serverStorage.socketManager[name].data = data.toString();
   const response = encryptAndPackageData(Buffer.from("Received data"), key);
   sendData(response);
 };
@@ -117,10 +117,10 @@ const handleLogin = (keyName: { key: Buffer; name: string }, encryptedData: Buff
   }
   if (serverStorage.socketManager[name] !== undefined) {
     sendData(Buffer.from("Name already in use. Please choose another name."));
+    socket.end();
     return;
   }
   keyName.name = name;
   serverStorage.socketManager[name] = { socket, key: keyName.key, name: keyName.name, data: "" };
   messageCount++;
-  return;
 };
