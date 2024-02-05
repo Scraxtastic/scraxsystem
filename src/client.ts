@@ -2,10 +2,27 @@ import { Socket } from "net";
 import "dotenv/config";
 import { getKey } from "./fileManager";
 import { encryptAndPackageData, unpackageAndDecryptData } from "./gcm";
+import path from "path";
+import fs from "fs";
 console.log("Client:", "started client");
 
 const sendEncryptedMessage = (socket: Socket, data: Buffer, key: Buffer) => {
   socket.write(encryptAndPackageData(data, key));
+};
+
+const getFileData = (): string => {
+  const filesPath = path.join(__dirname, "..", "files");
+  if (!fs.existsSync(filesPath)) {
+    fs.mkdirSync(filesPath);
+  }
+  const files = fs.readdirSync(filesPath);
+  let filesData: any = {};
+  for (const file of files) {
+    const filePath = path.join(filesPath, file);
+    const fileData = fs.readFileSync(filePath, "utf-8");
+    filesData[file] = fileData;
+  }
+  return JSON.stringify(filesData);
 };
 
 const sendMessages = (socket: Socket, key: Buffer, name: string) => {
@@ -15,9 +32,9 @@ const sendMessages = (socket: Socket, key: Buffer, name: string) => {
     sendEncryptedMessage(socket, Buffer.from(name), key);
 
     interval = setInterval(() => {
-      const message = "Still alive!";
-      console.log("Client:", "->", message);
-      sendEncryptedMessage(socket, Buffer.from(message), key);
+      const fileText = Buffer.from(getFileData(), "utf-8").toString("base64");
+      console.log("Client:", "->", "Sending data:", fileText);
+      sendEncryptedMessage(socket, Buffer.from(fileText, "utf-8"), key);
     }, 5500);
   });
 
