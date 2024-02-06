@@ -5,14 +5,26 @@ import { IncomingMessage } from "http";
 import { ServerStorage } from "./serverStorage";
 import { decryptData, encryptAndPackageData, unpackageAndDecryptData, unpackageData } from "../cbc";
 import { wrapperKeys } from "../wrapperKeys";
+import fs from "fs";
+import https from "https";
 
 const serverStorage: ServerStorage = ServerStorage.getInstance();
 
 export const createWebsocketServer = () => {
   const webPort = +process.env.websocketport || 8090;
-  const webSocketServer = new WebSocket.Server({ port: webPort });
-  webSocketServer.on("connection", handleNewWebsocketConnection);
-  console.log("WServer:", "Server listening on port " + webPort);
+  const useWss = process.env.useWss === "true";
+  if (useWss) {
+    const cert = fs.readFileSync(process.env.certPath);
+    const key = fs.readFileSync(process.env.keyPath);
+    const httpsServer = https.createServer({ cert, key });
+    const webSocketServer = new WebSocket.Server({ server: httpsServer, port: webPort });
+    webSocketServer.on("connection", handleNewWebsocketConnection);
+    console.log("WServer:", "Server listening on port " + webPort);
+  } else {
+    const webSocketServer = new WebSocket.Server({ port: webPort });
+    webSocketServer.on("connection", handleNewWebsocketConnection);
+    console.log("WServer:", "Server listening on port " + webPort);
+  }
 };
 
 const handleNewWebsocketConnection = (socket: WebSocket, req: IncomingMessage) => {
