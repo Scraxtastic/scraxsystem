@@ -14,12 +14,19 @@ export const createWebsocketServer = () => {
   const webPort = +process.env.websocketport || 8090;
   const useWss = process.env.useWss === "true";
   if (useWss) {
-    const cert = fs.readFileSync(process.env.certPath);
-    const key = fs.readFileSync(process.env.keyPath);
-    const httpsServer = https.createServer({ cert, key });
-    const webSocketServer = new WebSocket.Server({ server: httpsServer, port: webPort });
-    webSocketServer.on("connection", handleNewWebsocketConnection);
-    console.log("WServer:", "Server listening on port " + webPort);
+    try {
+      console.log("WServer:", `Using WSS ${process.env.certPath} ${process.env.keyPath}`)
+      const cert = fs.readFileSync(process.env.certPath);
+      const key = fs.readFileSync(process.env.keyPath);
+      const httpsServer = https.createServer({ cert, key});
+      console.log("WServer:", `Using WSS ${process.env.certPath} ${process.env.keyPath}`, cert, key);
+      const webSocketServer = new WebSocket.Server({ server: httpsServer });
+      webSocketServer.on("connection", handleNewWebsocketConnection);
+      httpsServer.listen(webPort);
+      console.log("WServer:", "Server listening on port " + webPort);
+    } catch (e) {
+      console.log("WServer:", "Error creating WSS server", e);
+    }
   } else {
     const webSocketServer = new WebSocket.Server({ port: webPort });
     webSocketServer.on("connection", handleNewWebsocketConnection);

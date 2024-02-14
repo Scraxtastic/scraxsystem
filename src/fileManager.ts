@@ -1,6 +1,10 @@
 import fs from "fs";
 import path from "path";
-import { decryptFileData as decryptFileDataCBC, encryptFileData as encryptFileDataCBC, unpackageAndDecryptData as unpackageAndDecryptDataCBC } from "./cbc";
+import {
+  decryptFileData as decryptFileDataCBC,
+  encryptFileData as encryptFileDataCBC,
+  unpackageAndDecryptData as unpackageAndDecryptDataCBC,
+} from "./cbc";
 import { unpackageAndDecryptData as unpackageAndDecryptDataGCM } from "./gcm";
 
 const ensureFile = (filePath: string) => {
@@ -73,6 +77,7 @@ const createKey = (key: Buffer, name: string) => {
   ensureDir(dir);
   const filePath = path.join(dir, name);
   ensureFile(filePath);
+  console.log("FileManager:", "Creating key", name, key.toString("base64"));
   const encrypted = encryptFileDataCBC(key);
   fs.writeFileSync(filePath, encrypted);
 };
