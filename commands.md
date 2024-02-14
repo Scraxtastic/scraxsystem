@@ -10,6 +10,10 @@
 
 `systemctl stop scraxserviceServer`
 
+### Restart
+
+`systemctl restart scraxserviceServer`
+
 ### Show
 
 `journalctl -fu scraxserviceServer`
@@ -27,6 +31,10 @@
 ### Stop
 
 `systemctl stop scraxserviceClient`
+
+### Restart
+
+`systemctl restart scraxserviceClient`
 
 ### Show
 

@@ -2,7 +2,7 @@ import { getKey } from "./fileManager";
 
 // For testing
 require("./server");
-require("./client");
+// require("./client");
 require("./webClient");
 
 // import { createCipheriv, createDecipheriv } from "crypto";
