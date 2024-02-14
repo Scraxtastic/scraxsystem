@@ -31,6 +31,7 @@ const sendMessages = (socket: WebSocket, key: Buffer, name: string) => {
 
   socket.on("error", (err) => {
     console.log("WClient:", "Socket error:", err.name, err.message);
+    console.log(err.stack)
   });
 
   socket.on("unexpected-response", (req, res) => {
