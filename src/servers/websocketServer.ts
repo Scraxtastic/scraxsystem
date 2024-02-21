@@ -21,11 +21,10 @@ export const createWebsocketServer = () => {
   const useWss = process.env.useWss === "true";
   if (useWss) {
     try {
-      console.log("WServer:", `Using WSS ${process.env.certPath} ${process.env.keyPath}`);
+      console.log("WServer:", `Using WSS`);
       const cert = fs.readFileSync(process.env.certPath);
       const key = fs.readFileSync(process.env.keyPath);
       const httpsServer = https.createServer({ cert, key });
-      console.log("WServer:", `Using WSS ${process.env.certPath} ${process.env.keyPath}`, cert, key);
       const webSocketServer = new WebSocket.Server({ server: httpsServer });
       webSocketServer.on("connection", handleNewWebsocketConnection);
       httpsServer.listen(webPort);
@@ -93,10 +92,6 @@ const handleNewWebsocketConnection = (webSocket: WebSocket, req: IncomingMessage
     if (messageCount === 0) {
       console.log("WServer:", "Received FIRST Message.");
       const firstMessageResult: FirstMessageSuccess = handleFirstMessage(unwrappedData);
-      key = firstMessageResult.websocketEntry.key;
-      name = firstMessageResult.websocketEntry.name;
-      conType = firstMessageResult.type;
-      console.log("WServer:", `${firstMessageResult.websocketEntry.name} logged in as ${firstMessageResult.type}.`);
       serverStorage.lastConnectionUpdate = new Date().getTime();
       serverStorage.connections[req.socket.remoteAddress].lastConnectionTime = new Date().getTime();
       if (firstMessageResult.success === false) {
@@ -108,6 +103,10 @@ const handleNewWebsocketConnection = (webSocket: WebSocket, req: IncomingMessage
         webSocket.close();
         return;
       }
+      console.log("WServer:", `${firstMessageResult.websocketEntry.name} logged in as ${firstMessageResult.type}.`);
+      key = firstMessageResult.websocketEntry.key;
+      name = firstMessageResult.websocketEntry.name;
+      conType = firstMessageResult.type;
       if (serverStorage.connections[req.socket.remoteAddress].names.indexOf(name) === -1) {
         serverStorage.connections[req.socket.remoteAddress].names.push(name);
       }

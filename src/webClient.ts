@@ -12,9 +12,9 @@ console.log("WClient:", "started client");
 
 const sendEncryptedMessage = (socket: WebSocket, data: Buffer, key: Buffer) => {
   console.log("WClient:", "sending data", data.toString());
-  let encryptedData = encryptAndPackageData(data, key, iv);
+  let encryptedData = encryptAndPackageData(data, key);
   for (let i = 0; i < wrapperKeys.length; i++) {
-    encryptedData = encryptAndPackageData(encryptedData, Buffer.from(wrapperKeys[i], "base64"), iv);
+    encryptedData = encryptAndPackageData(encryptedData, Buffer.from(wrapperKeys[i], "base64"));
   }
   socket.send(encryptedData);
 };
@@ -64,7 +64,7 @@ const handleConnection = (socket: WebSocket, key: Buffer, name: string, type: Co
         handleSuccess();
       }
       if (type === "receiver") {
-        console.log("WClient:", type, "Received data:", decrypted.type, decrypted.message);
+        console.log("WClient:", type, "Received data:", decrypted);
         fs.writeFileSync("./output.json", JSON.stringify(decrypted));
       }
     } catch (e) {
