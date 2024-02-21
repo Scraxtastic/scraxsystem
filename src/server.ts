@@ -1,5 +1,4 @@
 import "dotenv/config";
-import { createSocketServer } from "./servers/socketServer";
 import { createWebsocketServer } from "./servers/websocketServer";
 
 process.on("uncaughtException", (err) => {

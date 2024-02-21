@@ -12,6 +12,7 @@ import { LoginData } from "../models/LoginData";
 import { MessageType } from "../models/MessageType";
 import { ErrorMessage } from "../models/ErrorMessage";
 import { ConnectionMessage } from "../models/ConnectionMessage";
+import { SendingData } from "../models/SendingData";
 
 const serverStorage: ServerStorage = ServerStorage.getInstance();
 
@@ -40,7 +41,6 @@ export const createWebsocketServer = () => {
 };
 
 const handleNewWebsocketConnection = (webSocket: WebSocket, req: IncomingMessage) => {
-  const errorMessageType: MessageType = "error";
   console.log("WServer:", `Socket ${req.socket.remoteAddress} ${req.socket.remotePort} connected.`);
   // Create remoteAddress entry if it doesn't exist
   if (serverStorage.connections[req.socket.remoteAddress] === undefined) {
@@ -59,6 +59,7 @@ const handleNewWebsocketConnection = (webSocket: WebSocket, req: IncomingMessage
   let name: string = "NOT SET";
   let conType: ConnectorType = "NOT SET";
   let messageCount: number = 0;
+  let lastUpdate: number = 0;
   // Interval for sending Messages (if needed to send continously)
   let interval: NodeJS.Timeout = null;
   // Send data to the client
@@ -84,17 +85,19 @@ const handleNewWebsocketConnection = (webSocket: WebSocket, req: IncomingMessage
   });
 
   webSocket.on("message", (hardlyEncryptedData: Buffer) => {
-    console.log("WServer:", "Received Message.");
+    console.log("WServer:", `Received Message from ${name} as type ${conType} with messages: ${messageCount}`);
     let unwrappedData = hardlyEncryptedData;
     for (let i = wrapperKeys.length - 1; i >= 0; i--) {
       unwrappedData = unpackageAndDecryptData(unwrappedData, Buffer.from(wrapperKeys[i], "base64"));
     }
-    console.log("WServer:", "Received Message.");
     if (messageCount === 0) {
       console.log("WServer:", "Received FIRST Message.");
       const firstMessageResult: FirstMessageSuccess = handleFirstMessage(unwrappedData);
       key = firstMessageResult.websocketEntry.key;
+      name = firstMessageResult.websocketEntry.name;
+      conType = firstMessageResult.type;
       console.log("WServer:", `${firstMessageResult.websocketEntry.name} logged in as ${firstMessageResult.type}.`);
+      serverStorage.lastConnectionUpdate = new Date().getTime();
       serverStorage.connections[req.socket.remoteAddress].lastConnectionTime = new Date().getTime();
       if (firstMessageResult.success === false) {
         // sendDataEncrypted(
@@ -108,7 +111,8 @@ const handleNewWebsocketConnection = (webSocket: WebSocket, req: IncomingMessage
       if (serverStorage.connections[req.socket.remoteAddress].names.indexOf(name) === -1) {
         serverStorage.connections[req.socket.remoteAddress].names.push(name);
       }
-      serverStorage.sockets[name] = { socket: req.socket, key, name };
+      serverStorage.sockets[name] = { socket: req.socket, key, name, data: "", lastUpdate: new Date().getTime() };
+      serverStorage.lastSocketUpdate = new Date().getTime();
       messageCount++;
       conType = firstMessageResult.type;
       if (firstMessageResult.type === "receiver") {
@@ -124,23 +128,33 @@ const handleNewWebsocketConnection = (webSocket: WebSocket, req: IncomingMessage
       }
       return;
     }
+    messageCount++;
     const data = unpackageAndDecryptData(unwrappedData, key).toString();
-    if (conType !== "sender") {
-      handleSender(data);
+    if (conType === "sender") {
+      handleSender(name, data);
       return;
     }
   });
 
   const collectAndSendData = () => {
-    console.log("WServer:", "Sending Message to", name);
-    const message: ConnectionMessage = { message: serverStorage.getConnectInformation(), type: "data" };
+    const sendingData: SendingData = serverStorage.getConnectInformation(lastUpdate);
+    if (sendingData === null) {
+      // No update available -> not sending anything
+      return;
+    }
+    // console.log("WServer:", "Sending Message to", name);
+    const message: ConnectionMessage = { message: JSON.stringify(sendingData), type: "data" };
+    // console.log("WServer:", "Sending data to", name, message.message);
     const data = Buffer.from(JSON.stringify(message), "utf-8");
     sendDataEncrypted(data);
+    lastUpdate = new Date().getTime();
   };
 };
 
-const handleSender = (data: string) => {
-  console.log("WServer:", "Received data from sender", data);
+const handleSender = (name: string, data: string) => {
+  console.log("WServer:", "Received data from sender");
+  serverStorage.sockets[name].data = data;
+  serverStorage.lastSocketUpdate = new Date().getTime();
 };
 
 //Handle first message
@@ -169,7 +183,7 @@ const handleFirstMessage = (encryptedData: Buffer): FirstMessageSuccess => {
       default:
         return {
           success: false,
-          websocketEntry: { socket: null, name: loginData.name, key: key },
+          websocketEntry: { socket: null, name: loginData.name, key: key, data: "", lastUpdate: new Date().getTime() },
           message: "No type provided",
           type: "NOT SET",
         };
@@ -177,7 +191,7 @@ const handleFirstMessage = (encryptedData: Buffer): FirstMessageSuccess => {
     // return success
     return {
       success: true,
-      websocketEntry: { socket: null, name: loginData.name, key: key },
+      websocketEntry: { socket: null, name: loginData.name, key: key, data: "", lastUpdate: new Date().getTime() },
       message: "First message handled successfully",
       type: type,
     };
