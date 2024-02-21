@@ -4,6 +4,10 @@ import { getKey } from "./fileManager";
 import { encryptAndPackageData, iv, unpackageAndDecryptData } from "./cbc";
 import fs from "fs";
 import { wrapperKeys } from "./wrapperKeys";
+import { ConnectorType } from "./models/FirstMessageSuccess";
+import { LoginData } from "./models/LoginData";
+import { ErrorMessage } from "./models/ErrorMessage";
+import { ConnectionMessage } from "./models/ConnectionMessage";
 console.log("WClient:", "started client");
 
 const sendEncryptedMessage = (socket: WebSocket, data: Buffer, key: Buffer) => {
@@ -23,55 +27,104 @@ const decryptMessage = (hardlyEncryptedData: Buffer, key: Buffer) => {
   return data;
 };
 
-const sendMessages = (socket: WebSocket, key: Buffer, name: string) => {
+const getData = (name: string) => {
+  const data = {
+    time: new Date().getTime(),
+    name: name,
+  };
+  return JSON.stringify(data);
+};
+
+const handleConnection = (socket: WebSocket, key: Buffer, name: string, type: ConnectorType) => {
+  let interval: NodeJS.Timeout = null;
+  let lastData: string = "";
   socket.on("open", () => {
-    console.log("WClient:", "Connected to server.");
-    sendEncryptedMessage(socket, Buffer.from(name), key);
+    console.log("WClient:", type, "Connected to server.");
+    const loginMessage: LoginData = { name, type };
+    sendEncryptedMessage(socket, Buffer.from(JSON.stringify(loginMessage)), key);
   });
 
   socket.on("error", (err) => {
-    console.log("WClient:", "Socket error:", err.name, err.message);
-    console.log(err.stack)
+    console.log("WClient:", type, "Socket error:", err.name, err.message);
+    console.log(err.stack);
   });
 
   socket.on("unexpected-response", (req, res) => {
-    console.log("WClient:", "Unexpected response:", res);
+    console.log("WClient:", type, "Unexpected response:", res);
   });
 
   socket.on("message", (data: Buffer) => {
     try {
-      const decrypted = decryptMessage(data, key);
-      console.log("WClient:", "Received data:", decrypted.toString());
-      fs.writeFileSync("./output.json", decrypted.toString());
+      const decrypted: ErrorMessage | ConnectionMessage = JSON.parse(decryptMessage(data, key).toString());
+      if (decrypted.type === "error") {
+        console.error("WClient:", type, "Error:", decrypted.message);
+        socket.close();
+      }
+      if (decrypted.type === "success") {
+        handleSuccess();
+      }
+      if (type === "receiver") {
+        console.log("WClient:", type, "Received data:", decrypted.type, decrypted.message);
+        fs.writeFileSync("./output.json", JSON.stringify(decrypted));
+      }
     } catch (e) {
-      socket.send("Error: " + "Decryption failed.");
+      const errorMessage: ErrorMessage = { message: "Decryption failed.", type: "error" };
+      sendEncryptedMessage(socket, Buffer.from(JSON.stringify(errorMessage)), key);
       socket.close();
     }
   });
 
   socket.on("close", () => {
-    console.log("WClient:", "Socket closed.");
+    console.log("WClient:", type, "Socket closed.");
+    clearInterval(interval);
   });
+  const handleSuccess = () => {
+    if (type !== "sender") {
+      return;
+    }
+    if (interval !== null) {
+      return;
+    }
+    console.log("WClient:", type, "Handling success");
+
+    sendEncryptedMessage(socket, Buffer.from(getData(name)), key);
+    interval = setInterval(() => {
+      const currentData = getData(name);
+      if (currentData === lastData) {
+        return;
+      }
+      lastData = currentData;
+      sendEncryptedMessage(socket, Buffer.from(currentData), key);
+    }, 10000);
+  };
 };
 
-const createConnection = (ip: string, name: string) => {
+const createConnection = (ip: string, name: string, type: ConnectorType) => {
   const key = getKey(name);
   console.log("WClient", `key ${name} retrieved`);
   const socket = new WebSocket(ip);
-  sendMessages(socket, key, name);
+  handleConnection(socket, key, name, type);
 };
 
-const startClient = (name: string) => {
+const startClient = (name: string, type: ConnectorType) => {
   const serverip = process.env.wsAddress || "localhost";
   console.log("WClient:", "connecting to ", serverip);
-  createConnection(serverip, name);
+  createConnection(serverip, name, type);
 };
 
 setTimeout(() => {
   let name = "";
+  let hasSender = false;
+  let hasReceiver = false;
   process.argv.forEach(function (val, index, array) {
     if (val.includes("name=")) {
       name = val.split("=")[1];
+    }
+    if (val.includes("sender")) {
+      hasSender = true;
+    }
+    if (val.includes("receiver")) {
+      hasReceiver = true;
     }
   });
   if (name == "") {
@@ -82,5 +135,10 @@ setTimeout(() => {
     process.exit(1);
   }
   console.log("WClient:", "name:", name);
-  startClient(name);
+  if (hasSender) {
+    startClient(name, "sender");
+  }
+  if (hasReceiver) {
+    startClient(name, "receiver");
+  }
 }, 1000);

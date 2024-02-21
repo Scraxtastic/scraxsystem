@@ -7,7 +7,8 @@ process.on("uncaughtException", (err) => {
 });
 
 const createServer = () => {
-  createSocketServer();
+  // Was the first try, will not be used anymore because of the new protocol and the availability of the websocket server including TLS
+  // createSocketServer();
   createWebsocketServer();
 };
 

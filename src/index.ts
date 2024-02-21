@@ -2,9 +2,9 @@ import { getKey } from "./fileManager";
 
 // For testing
 require("./server");
-// require("./client");
 require("./webClient");
 
+// require("./client");
 // import { createCipheriv, createDecipheriv } from "crypto";
 
 // const key = Buffer.from("bi7kdNhA7R3ZsMkv5Ct5Ka0o+hDeDq8h4MzDUzEnZh8=", "base64");
