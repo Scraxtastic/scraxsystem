@@ -85,7 +85,7 @@ const handleNewWebsocketConnection = (webSocket: WebSocket, req: IncomingMessage
   });
 
   webSocket.on("message", (hardlyEncryptedData: Buffer) => {
-    console.log("WServer:", `Received Message from ${name} as type ${conType} with messages: ${messageCount}`);
+    // console.log("WServer:", `Received Message from ${name} as type ${conType} with messages: ${messageCount}`);
     let unwrappedData = hardlyEncryptedData;
     for (let i = wrapperKeys.length - 1; i >= 0; i--) {
       unwrappedData = unpackageAndDecryptData(unwrappedData, Buffer.from(wrapperKeys[i], "base64"));
@@ -159,7 +159,7 @@ const handleNewWebsocketConnection = (webSocket: WebSocket, req: IncomingMessage
 };
 
 const handleSender = (name: string, data: string) => {
-  console.log("WServer:", "Received data from sender");
+  // console.log("WServer:", "Received data from sender");
   serverStorage.sockets[name].data = data;
   serverStorage.lastSocketUpdate = new Date().getTime();
 };
