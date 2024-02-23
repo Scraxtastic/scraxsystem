@@ -59,6 +59,7 @@ const handleNewWebsocketConnection = (webSocket: WebSocket, req: IncomingMessage
   let conType: ConnectorType = "NOT SET";
   let messageCount: number = 0;
   let lastUpdate: number = 0;
+  let lastReceivedMessageTime: number = 0;
   // Interval for sending Messages (if needed to send continously)
   let interval: NodeJS.Timeout = null;
   // Send data to the client
@@ -89,6 +90,7 @@ const handleNewWebsocketConnection = (webSocket: WebSocket, req: IncomingMessage
     for (let i = wrapperKeys.length - 1; i >= 0; i--) {
       unwrappedData = unpackageAndDecryptData(unwrappedData, Buffer.from(wrapperKeys[i], "base64"));
     }
+    lastReceivedMessageTime = new Date().getTime();
     if (messageCount === 0) {
       console.log("WServer:", "Received FIRST Message.");
       const firstMessageResult: FirstMessageSuccess = handleFirstMessage(unwrappedData);
@@ -119,11 +121,17 @@ const handleNewWebsocketConnection = (webSocket: WebSocket, req: IncomingMessage
         collectAndSendData();
         interval = setInterval(() => {
           collectAndSendData();
-        }, 10000);
+        }, 1000);
       } else {
         console.log("WServer:", "Sender connected.");
         const response: ConnectionMessage = { message: "Hello, World!", type: "success" };
         sendDataEncrypted(Buffer.from(JSON.stringify(response), "utf-8"));
+        interval = setInterval(() => {
+          if(lastReceivedMessageTime + 60000 < new Date().getTime()) {
+            console.log("WServer:", "No message received from sender for 60 seconds. Closing connection.");
+            webSocket.close();
+          }
+        }, 10000);
       }
       return;
     }

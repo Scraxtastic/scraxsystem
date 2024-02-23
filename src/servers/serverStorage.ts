@@ -37,8 +37,9 @@ export class ServerStorage {
     }
     if (shallUpdateConnection) {
       Object.keys(this.connections).forEach((key) => {
-        const { connected, disconnected, lastConnectionTime, names, failedLogins } = this.connections[key];
+        const { connected, disconnected, lastConnectionTime, names, failedLogins, ip } = this.connections[key];
         dataToSend.connections.push({
+          ip,
           connected,
           disconnected,
           lastConnectionTime,

@@ -8,6 +8,16 @@ import { ConnectorType } from "./models/FirstMessageSuccess";
 import { LoginData } from "./models/LoginData";
 import { ErrorMessage } from "./models/ErrorMessage";
 import { ConnectionMessage } from "./models/ConnectionMessage";
+import {
+  cpu,
+  cpuCurrentSpeed,
+  cpuTemperature,
+  currentLoad,
+  fsSize,
+  fsStats,
+  networkStats,
+  mem,
+} from "systeminformation";
 console.log("WClient:", "started client");
 
 const sendEncryptedMessage = (socket: WebSocket, data: Buffer, key: Buffer) => {
@@ -28,9 +38,36 @@ const decryptMessage = (hardlyEncryptedData: Buffer, key: Buffer) => {
   return data;
 };
 
-const getData = (name: string) => {
-  const data = {
+const getData = async (lastData: any, name: string) => {
+  let data: any = {
     name: name,
+  };
+  data.cpuSpeed = { value: (await cpuCurrentSpeed()).avg, unit: "GHz" };
+  if (data.cpuSpeed.value === null) {
+    delete data.cpuSpeed;
+  }
+
+  data.cpuTemp = (await cpuTemperature()).main;
+  data.cpuTemp = { value: data.cpuTemp.toFixed(1), unit: "°C" };
+  if (data.cpuTemp.value === null) {
+    delete data.cpuTemp;
+  }
+
+  data.cpuLoad = { value: (await currentLoad()).avgLoad * 100, unit: "%" };
+  data.latency = { value: ((await networkStats())[0].ms / 1000).toFixed(1), unit: "s" };
+  const memData = await mem();
+  const gb = Math.pow(10, 9);
+  const mb = Math.pow(10, 6);
+  let unit = gb;
+  let unitName = "GB";
+  if (memData.total < gb) {
+    unit = mb;
+    unitName = "MB";
+  }
+  data.ram = {
+    used: (memData.active / unit).toFixed(1),
+    total: ((memData.active + memData.available) / unit).toFixed(1),
+    unit: unitName,
   };
   return JSON.stringify(data);
 };
@@ -38,6 +75,7 @@ const getData = (name: string) => {
 const handleConnection = (socket: WebSocket, key: Buffer, name: string, type: ConnectorType) => {
   let interval: NodeJS.Timeout = null;
   let lastData: string = "";
+  let lastMessageSent: number = 0;
   socket.on("open", () => {
     console.log("WClient:", type, "Connected to server.");
     const loginMessage: LoginData = { name, type };
@@ -68,6 +106,7 @@ const handleConnection = (socket: WebSocket, key: Buffer, name: string, type: Co
         fs.writeFileSync("./output.json", JSON.stringify(decrypted));
       }
     } catch (e) {
+      //TODO: Implement server side error handling
       const errorMessage: ErrorMessage = { message: "Decryption failed.", type: "error" };
       sendEncryptedMessage(socket, Buffer.from(JSON.stringify(errorMessage)), key);
       socket.close();
@@ -78,7 +117,7 @@ const handleConnection = (socket: WebSocket, key: Buffer, name: string, type: Co
     console.log("WClient:", type, "Socket closed.");
     clearInterval(interval);
   });
-  const handleSuccess = () => {
+  const handleSuccess = async () => {
     if (type !== "sender") {
       return;
     }
@@ -87,15 +126,18 @@ const handleConnection = (socket: WebSocket, key: Buffer, name: string, type: Co
     }
     console.log("WClient:", type, "Handling success");
 
-    sendEncryptedMessage(socket, Buffer.from(getData(name)), key);
-    interval = setInterval(() => {
-      const currentData = getData(name);
-      if (currentData === lastData) {
+    sendEncryptedMessage(socket, Buffer.from(await getData(lastData, name)), key);
+    const intervalTime = +process.env.clientSendInterval || 1000;
+    interval = setInterval(async () => {
+      const currentData = await getData(lastData, name);
+      const now = new Date().getTime();
+      if (currentData === lastData && lastMessageSent + 50000 > now) {
         return;
       }
       lastData = currentData;
+      lastMessageSent = now;
       sendEncryptedMessage(socket, Buffer.from(currentData), key);
-    }, 10000);
+    }, intervalTime);
   };
 };
 
