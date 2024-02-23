@@ -38,23 +38,30 @@ const decryptMessage = (hardlyEncryptedData: Buffer, key: Buffer) => {
   return data;
 };
 
+const toFixedAsFloat = (value: number, fixed: number) => {
+  if(value === null) {
+    return null;
+  }
+  return parseFloat(value.toFixed(fixed));
+};
+
 const getData = async (lastData: any, name: string) => {
   let data: any = {
     name: name,
   };
-  data.cpuSpeed = { value: (await cpuCurrentSpeed()).avg, unit: "GHz" };
+  data.cpuSpeed = { value: toFixedAsFloat((await cpuCurrentSpeed()).avg, 1), unit: "GHz" };
   if (data.cpuSpeed.value === null) {
     delete data.cpuSpeed;
   }
 
   data.cpuTemp = (await cpuTemperature()).main;
-  data.cpuTemp = { value: data.cpuTemp.toFixed(1), unit: "°C" };
+  data.cpuTemp = { value: toFixedAsFloat(data.cpuTemp, 1), unit: "°C" };
   if (data.cpuTemp.value === null) {
     delete data.cpuTemp;
   }
 
-  data.cpuLoad = { value: (await currentLoad()).avgLoad * 100, unit: "%" };
-  data.latency = { value: ((await networkStats())[0].ms / 1000).toFixed(1), unit: "s" };
+  data.cpuLoad = { value: toFixedAsFloat((await currentLoad()).avgLoad * 100, 1), unit: "%" };
+  data.latency = { value: toFixedAsFloat((await networkStats())[0].ms / 1000, 1), unit: "s" };
   const memData = await mem();
   const gb = Math.pow(10, 9);
   const mb = Math.pow(10, 6);
@@ -65,8 +72,8 @@ const getData = async (lastData: any, name: string) => {
     unitName = "MB";
   }
   data.ram = {
-    used: (memData.active / unit).toFixed(1),
-    total: ((memData.active + memData.available) / unit).toFixed(1),
+    used: toFixedAsFloat(memData.active / unit, 1),
+    total: toFixedAsFloat((memData.active + memData.available) / unit, 1),
     unit: unitName,
   };
   return JSON.stringify(data);
@@ -85,6 +92,7 @@ const handleConnection = (socket: WebSocket, key: Buffer, name: string, type: Co
   socket.on("error", (err) => {
     console.log("WClient:", type, "Socket error:", err.name, err.message);
     console.log(err.stack);
+    process.exit(1);
   });
 
   socket.on("unexpected-response", (req, res) => {
@@ -116,6 +124,7 @@ const handleConnection = (socket: WebSocket, key: Buffer, name: string, type: Co
   socket.on("close", () => {
     console.log("WClient:", type, "Socket closed.");
     clearInterval(interval);
+    process.exit(0);
   });
   const handleSuccess = async () => {
     if (type !== "sender") {
