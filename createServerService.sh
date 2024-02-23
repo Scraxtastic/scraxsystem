@@ -29,3 +29,4 @@ sudo systemctl daemon-reload
 sudo systemctl enable scraxserviceServer.service
 
 echo "Service created and enabled successfully."
+echo "Run 'systemctl start scraxserviceServer' to start the service."
