@@ -61,6 +61,9 @@ const getData = async (lastData: any, name: string) => {
   }
 
   data.cpuLoad = { value: toFixedAsFloat((await currentLoad()).avgLoad * 100, 1), unit: "%" };
+  if(data.cpuLoad.value === null || data.cpuLoad.value === 0) {
+    delete data.cpuLoad;
+  }
   data.latency = { value: toFixedAsFloat((await networkStats())[0].ms / 1000, 1), unit: "s" };
   const memData = await mem();
   const gb = Math.pow(10, 9);
@@ -124,7 +127,7 @@ const handleConnection = (socket: WebSocket, key: Buffer, name: string, type: Co
   socket.on("close", () => {
     console.log("WClient:", type, "Socket closed.");
     clearInterval(interval);
-    process.exit(0);
+    process.exit(1);
   });
   const handleSuccess = async () => {
     if (type !== "sender") {
