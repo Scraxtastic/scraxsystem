@@ -1,13 +1,13 @@
 import { WebSocket } from "ws";
 import "dotenv/config";
-import { getKey } from "./fileManager";
-import { encryptAndPackageData, iv, unpackageAndDecryptData } from "./cbc";
+import { getKey } from "../fileManager";
+import { encryptAndPackageData, iv, unpackageAndDecryptData } from "../cbc";
 import fs from "fs";
-import { wrapperKeys } from "./wrapperKeys";
-import { ConnectorType } from "./models/FirstMessageSuccess";
-import { LoginData } from "./models/LoginData";
-import { ErrorMessage } from "./models/ErrorMessage";
-import { ConnectionMessage } from "./models/ConnectionMessage";
+import { wrapperKeys } from "../wrapperKeys";
+import { ConnectorType } from "../models/FirstMessageSuccess";
+import { LoginData } from "../models/LoginData";
+import { ErrorMessage } from "../models/ErrorMessage";
+import { ConnectionMessage } from "../models/ConnectionMessage";
 import {
   cpu,
   cpuCurrentSpeed,
@@ -18,6 +18,9 @@ import {
   networkStats,
   mem,
 } from "systeminformation";
+import { ModServer } from "./ModServer";
+import { ModMessage } from "../models/ModMessage";
+import { UpdateMods } from "../models/UpdateMods";
 console.log("WClient:", "started client");
 
 const sendEncryptedMessage = (socket: WebSocket, data: Buffer, key: Buffer) => {
@@ -39,13 +42,13 @@ const decryptMessage = (hardlyEncryptedData: Buffer, key: Buffer) => {
 };
 
 const toFixedAsFloat = (value: number, fixed: number) => {
-  if(value === null) {
+  if (value === null) {
     return null;
   }
   return parseFloat(value.toFixed(fixed));
 };
 
-const getData = async (lastData: any, name: string) => {
+const getData = async (name: string, availableMods: {}) => {
   let data: any = {
     name: name,
   };
@@ -61,7 +64,7 @@ const getData = async (lastData: any, name: string) => {
   }
 
   data.cpuLoad = { value: toFixedAsFloat((await currentLoad()).avgLoad * 100, 1), unit: "%" };
-  if(data.cpuLoad.value === null || data.cpuLoad.value === 0) {
+  if (data.cpuLoad.value === null || data.cpuLoad.value === 0) {
     delete data.cpuLoad;
   }
   data.latency = { value: toFixedAsFloat((await networkStats())[0].ms / 1000, 1), unit: "s" };
@@ -79,6 +82,11 @@ const getData = async (lastData: any, name: string) => {
     total: toFixedAsFloat((memData.active + memData.available) / unit, 1),
     unit: unitName,
   };
+
+  // MODS
+  data.mods = Object.keys(availableMods).map((key) => {
+    return { name: key };
+  });
   return JSON.stringify(data);
 };
 
@@ -86,6 +94,8 @@ const handleConnection = (socket: WebSocket, key: Buffer, name: string, type: Co
   let interval: NodeJS.Timeout = null;
   let lastData: string = "";
   let lastMessageSent: number = 0;
+  let modServer: ModServer = null;
+  const availableMods: any = {};
   socket.on("open", () => {
     console.log("WClient:", type, "Connected to server.");
     const loginMessage: LoginData = { name, type };
@@ -104,13 +114,69 @@ const handleConnection = (socket: WebSocket, key: Buffer, name: string, type: Co
 
   socket.on("message", (data: Buffer) => {
     try {
-      const decrypted: ErrorMessage | ConnectionMessage = JSON.parse(decryptMessage(data, key).toString());
+      const decrypted: ErrorMessage | ConnectionMessage | ModMessage = JSON.parse(decryptMessage(data, key).toString());
       if (decrypted.type === "error") {
         console.error("WClient:", type, "Error:", decrypted.message);
-        socket.close();
+        // socket.close();
       }
       if (decrypted.type === "success") {
         handleSuccess();
+        modServer = new ModServer(
+          (name: string, sendMessage: (message: string, origin: string) => void) => {
+            //Add Mod
+            console.log("Adding", name);
+            availableMods[name] = {send: sendMessage, running: false, queue: []};
+            // const modUpdate: UpdateMods = { mods: Object.keys(availableMods), type: "updateMods" };
+            // sendEncryptedMessage(socket, Buffer.from(JSON.stringify(modUpdate)), key);
+          },
+          (name: string) => {
+            //Remove Mod
+            console.log("Removing", name);
+            delete availableMods[name];
+          },
+          (modname: string, message: string, target: string) => {
+            //On Response
+            console.log("Response", message);
+            const modMessage: ModMessage = {
+              message: message,
+              target: target,
+              origin: name,
+              modname: modname,
+              type: "mod",
+            };
+            sendEncryptedMessage(socket, Buffer.from(JSON.stringify(modMessage)), key);
+          },
+          (modname: string, target:string) => {
+            //On Finished
+            console.log("Finished");
+            const modMessage: ModMessage = {
+              message: "\n",
+              target: target,
+              origin: name,
+              modname: modname,
+              type: "mod",
+            };
+            sendEncryptedMessage(socket, Buffer.from(JSON.stringify(modMessage)), key);
+          
+          }
+        );
+      }
+      if (decrypted.type === "mod") {
+        try {
+          const modMessage = decrypted as ModMessage;
+          console.log("WClient:", type, "Received mod message:", modMessage);
+          console.log(
+            "WClient:",
+            type,
+            "Available mods:",
+            availableMods,
+            availableMods[modMessage.modname],
+            modMessage.modname
+          );
+          availableMods[modMessage.modname].send(modMessage.message, modMessage.origin);
+        } catch (e) {
+          console.log("WClient:", type, "Mod", "Error:", e.message, e.stack);
+        }
       }
       if (type === "receiver") {
         console.log("WClient:", type, "Received data:", decrypted);
@@ -118,9 +184,10 @@ const handleConnection = (socket: WebSocket, key: Buffer, name: string, type: Co
       }
     } catch (e) {
       //TODO: Implement server side error handling
+      console.log("WClient:", type, "Error:", e.message, e.stack);
       const errorMessage: ErrorMessage = { message: "Decryption failed.", type: "error" };
       sendEncryptedMessage(socket, Buffer.from(JSON.stringify(errorMessage)), key);
-      socket.close();
+      // socket.close();
     }
   });
 
@@ -138,10 +205,10 @@ const handleConnection = (socket: WebSocket, key: Buffer, name: string, type: Co
     }
     console.log("WClient:", type, "Handling success");
 
-    sendEncryptedMessage(socket, Buffer.from(await getData(lastData, name)), key);
+    sendEncryptedMessage(socket, Buffer.from(await getData(name, availableMods)), key);
     const intervalTime = +process.env.clientSendInterval || 1000;
     interval = setInterval(async () => {
-      const currentData = await getData(lastData, name);
+      const currentData = await getData(name, availableMods);
       const now = new Date().getTime();
       if (currentData === lastData && lastMessageSent + 50000 > now) {
         return;
