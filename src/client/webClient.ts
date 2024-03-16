@@ -21,6 +21,7 @@ import {
 import { ModServer } from "./ModServer";
 import { ModMessage } from "../models/ModMessage";
 import { UpdateMods } from "../models/UpdateMods";
+import { BasicData } from "../models/BasicData";
 console.log("WClient:", "started client");
 
 const sendEncryptedMessage = (socket: WebSocket, data: Buffer, key: Buffer) => {
@@ -49,16 +50,18 @@ const toFixedAsFloat = (value: number, fixed: number) => {
 };
 
 const getData = async (name: string, availableMods: {}) => {
-  let data: any = {
+  let data: BasicData = {
     name: name,
+    latency: { value: -1, unit: "s" },
+    ram: { used: -1, total: -1, unit: "GB" },
   };
   data.cpuSpeed = { value: toFixedAsFloat((await cpuCurrentSpeed()).avg, 1), unit: "GHz" };
   if (data.cpuSpeed.value === null) {
     delete data.cpuSpeed;
   }
 
-  data.cpuTemp = (await cpuTemperature()).main;
-  data.cpuTemp = { value: toFixedAsFloat(data.cpuTemp, 1), unit: "°C" };
+  const cpuTemp = (await cpuTemperature()).main;
+  data.cpuTemp = { value: toFixedAsFloat(cpuTemp, 1), unit: "°C" };
   if (data.cpuTemp.value === null) {
     delete data.cpuTemp;
   }
@@ -125,7 +128,7 @@ const handleConnection = (socket: WebSocket, key: Buffer, name: string, type: Co
           (name: string, sendMessage: (message: string, origin: string) => void) => {
             //Add Mod
             console.log("Adding", name);
-            availableMods[name] = {send: sendMessage, running: false, queue: []};
+            availableMods[name] = { send: sendMessage, running: false, queue: [] };
             // const modUpdate: UpdateMods = { mods: Object.keys(availableMods), type: "updateMods" };
             // sendEncryptedMessage(socket, Buffer.from(JSON.stringify(modUpdate)), key);
           },
@@ -146,7 +149,7 @@ const handleConnection = (socket: WebSocket, key: Buffer, name: string, type: Co
             };
             sendEncryptedMessage(socket, Buffer.from(JSON.stringify(modMessage)), key);
           },
-          (modname: string, target:string) => {
+          (modname: string, target: string) => {
             //On Finished
             console.log("Finished");
             const modMessage: ModMessage = {
@@ -157,7 +160,6 @@ const handleConnection = (socket: WebSocket, key: Buffer, name: string, type: Co
               type: "mod",
             };
             sendEncryptedMessage(socket, Buffer.from(JSON.stringify(modMessage)), key);
-          
           }
         );
       }
