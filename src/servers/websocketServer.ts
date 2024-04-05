@@ -1,20 +1,16 @@
 import WebSocket from "ws";
 import "dotenv/config";
-import { findKeyGCM, findKeyCBC } from "../fileManager";
 import { IncomingMessage } from "http";
 import { ServerStorage } from "./serverStorage";
-import { decryptData, encryptAndPackageData, unpackageAndDecryptData, unpackageData } from "../cbc";
+import { encryptAndPackageData, unpackageAndDecryptData } from "../cbc";
 import { wrapperKeys } from "../wrapperKeys";
 import fs from "fs";
 import https from "https";
 import { FirstMessageSuccess, ConnectorType } from "../models/FirstMessageSuccess";
-import { LoginData } from "../models/LoginData";
-import { MessageType } from "../models/MessageType";
-import { ErrorMessage } from "../models/ErrorMessage";
 import { ConnectionMessage } from "../models/ConnectionMessage";
 import { SendingData } from "../models/SendingData";
-import { ModMessage } from "../models/ModMessage";
-import { UpdateMods } from "../models/UpdateMods";
+import { handleFirstMessage } from "./FirstMessageHandler";
+import { handleMessage } from "./MessageHandler";
 
 const serverStorage: ServerStorage = ServerStorage.getInstance();
 
@@ -154,28 +150,7 @@ const handleNewWebsocketConnection = (webSocket: WebSocket, req: IncomingMessage
     }
     messageCount++;
     const data = unpackageAndDecryptData(unwrappedData, key).toString();
-    if (connectionType === "receiver") {
-      const modMessage: ModMessage = JSON.parse(data);
-      if (modMessage.type === "mod") {
-        const manager = serverStorage.sockets[modMessage.target];
-        manager.websocket.send(encryptData(Buffer.from(JSON.stringify(modMessage)), manager.key));
-      }
-    }
-    if (connectionType === "sender") {
-      const parsedData: ModMessage | UpdateMods = JSON.parse(data);
-      if (parsedData.type === "updateMods") {
-        serverStorage.sockets[name].mods = (parsedData as UpdateMods).mods;
-        console.log("WServer:", "Updated mods for", name, serverStorage.sockets[name].mods);
-      }
-      if (parsedData.type === "mod") {
-        const modMessage: ModMessage = parsedData as ModMessage;
-
-        const manager = serverStorage.sockets[modMessage.target];
-        manager.websocket.send(encryptData(Buffer.from(JSON.stringify(modMessage)), manager.key));
-      } else {
-        handleSender(name, data);
-      }
-    }
+    handleMessage(connectionType, serverStorage, encryptData, data, name);
   });
 
   const collectAndSendData = () => {
@@ -191,70 +166,4 @@ const handleNewWebsocketConnection = (webSocket: WebSocket, req: IncomingMessage
     sendDataEncrypted(data);
     lastUpdate = new Date().getTime();
   };
-};
-
-const handleReceiver = (name: string, data: string) => {};
-const handleSender = (name: string, data: string) => {
-  // console.log("WServer:", "Received data from sender");
-  serverStorage.sockets[name].data = data;
-  serverStorage.lastSocketUpdate = new Date().getTime();
-};
-
-//Handle first message
-const handleFirstMessage = (encryptedData: Buffer): FirstMessageSuccess => {
-  try {
-    const key = findKeyCBC(encryptedData);
-    if (key === null || key === undefined) {
-      return { success: false, websocketEntry: null, message: "No key found", type: "NOT SET" };
-    }
-    console.log("WServer:", "Key found");
-    const data = unpackageAndDecryptData(encryptedData, key);
-    const loginData: LoginData = JSON.parse(data.toString());
-    // check if name is given
-    if (loginData.name === undefined || loginData.name === null || loginData.name === "") {
-      return { success: false, websocketEntry: null, message: "No name provided", type: "NOT SET" };
-    }
-    // check loginData.type
-    let type: ConnectorType = "NOT SET";
-    switch (loginData.type) {
-      case "receiver":
-        type = "receiver";
-        break;
-      case "sender":
-        type = "sender";
-        break;
-      default:
-        return {
-          success: false,
-          websocketEntry: {
-            websocket: null,
-            socket: null,
-            name: loginData.name,
-            key: key,
-            data: "",
-            lastRegistration: new Date().getTime(),
-            mods: [],
-          },
-          message: "No type provided",
-          type: "NOT SET",
-        };
-    }
-    // return success
-    return {
-      success: true,
-      websocketEntry: {
-        websocket: null,
-        socket: null,
-        name: loginData.name,
-        key: key,
-        data: "",
-        lastRegistration: new Date().getTime(),
-        mods: [],
-      },
-      message: "First message handled successfully",
-      type: type,
-    };
-  } catch (e) {
-    return { success: false, websocketEntry: null, message: "Error while handling first message", type: "NOT SET" };
-  }
 };
