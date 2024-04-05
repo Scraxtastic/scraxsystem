@@ -1,0 +1,201 @@
+<mxfile host="Electron" modified="2024-04-05T14:14:17.228Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.7.5 Chrome/114.0.5735.289 Electron/25.8.1 Safari/537.36" etag="yAonZ3RYlSD5aJ75wERm" version="21.7.5" type="device" pages="2">
+  <diagram name="NetworkPlan" id="yLja4XyNJVGbteuGp69l">
+    <mxGraphModel dx="1486" dy="1180" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="3yWM4kMutGw4daCVIEZx-1" value="" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Personal_Computer.svg;" vertex="1" parent="1">
+          <mxGeometry x="370" y="535" width="45.6" height="61.800000000000004" as="geometry" />
+        </mxCell>
+        <mxCell id="3yWM4kMutGw4daCVIEZx-2" value="" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Personal_Computer.svg;" vertex="1" parent="1">
+          <mxGeometry x="107.2" y="410" width="45.6" height="61.800000000000004" as="geometry" />
+        </mxCell>
+        <mxCell id="3yWM4kMutGw4daCVIEZx-3" value="" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Personal_Computer.svg;" vertex="1" parent="1">
+          <mxGeometry x="67.2" y="130" width="45.6" height="61.800000000000004" as="geometry" />
+        </mxCell>
+        <mxCell id="3yWM4kMutGw4daCVIEZx-4" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shadow=0;dashed=0;strokeWidth=1;shape=mxgraph.android.phone2;strokeColor=#c0c0c0;" vertex="1" parent="1">
+          <mxGeometry x="715" y="115" width="50" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="3yWM4kMutGw4daCVIEZx-10" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="3yWM4kMutGw4daCVIEZx-5" target="3yWM4kMutGw4daCVIEZx-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3yWM4kMutGw4daCVIEZx-11" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="3yWM4kMutGw4daCVIEZx-5" target="3yWM4kMutGw4daCVIEZx-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3yWM4kMutGw4daCVIEZx-12" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="3yWM4kMutGw4daCVIEZx-5" target="3yWM4kMutGw4daCVIEZx-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3yWM4kMutGw4daCVIEZx-13" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="3yWM4kMutGw4daCVIEZx-5" target="3yWM4kMutGw4daCVIEZx-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="3yWM4kMutGw4daCVIEZx-5" value="" style="image;html=1;image=img/lib/clip_art/computers/Server_128x128.png" vertex="1" parent="1">
+          <mxGeometry x="352.8" y="120" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="3yWM4kMutGw4daCVIEZx-6" value="Server" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="362.8" y="90" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="3yWM4kMutGw4daCVIEZx-7" value="PC &lt;br&gt;(Client)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="362.8" y="490" width="60" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="3yWM4kMutGw4daCVIEZx-14" value="pi 5 (Client)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="100.00000000000001" y="370" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="3yWM4kMutGw4daCVIEZx-15" value="pi zero (Client)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="60.000000000000014" y="100" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="3yWM4kMutGw4daCVIEZx-16" value="Phone&lt;br&gt;(UserClient)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="710" y="80" width="60" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="rqANQ_AxvoSaMCpSVWhI" name="CommunicationPlan">
+    <mxGraphModel dx="1486" dy="1180" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-1" value="" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Personal_Computer.svg;" vertex="1" parent="1">
+          <mxGeometry x="67.2" y="264.1" width="45.6" height="61.800000000000004" as="geometry" />
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-2" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shadow=0;dashed=0;strokeWidth=1;shape=mxgraph.android.phone2;strokeColor=#c0c0c0;" vertex="1" parent="1">
+          <mxGeometry x="715" y="235.9" width="50" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-3" value="" style="image;html=1;image=img/lib/clip_art/computers/Server_128x128.png" vertex="1" parent="1">
+          <mxGeometry x="352.8" y="245.9" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-4" value="Server" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="362.8" y="215.9" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-5" value="pi 5 (Client)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="60.000000000000014" y="224.10000000000002" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-6" value="Phone&lt;br&gt;(UserClient)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="710" y="200.9" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-7" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="90" y="770" as="sourcePoint" />
+            <mxPoint x="90" y="330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-8" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="392.3" y="765.9" as="sourcePoint" />
+            <mxPoint x="392.3" y="325.9" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-9" value="" style="endArrow=none;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="739.5" y="765.9" as="sourcePoint" />
+            <mxPoint x="739.5" y="325.9" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-10" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="90" y="330" as="sourcePoint" />
+            <mxPoint x="390" y="330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-11" value="Login" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Rf3BUJMmEocPuWg3irpF-10">
+          <mxGeometry x="-0.1644" y="2" relative="1" as="geometry">
+            <mxPoint x="25" y="-2" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-12" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="390" y="350" as="sourcePoint" />
+            <mxPoint x="90" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-13" value="Confirm Login" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Rf3BUJMmEocPuWg3irpF-12">
+          <mxGeometry x="0.1644" y="1" relative="1" as="geometry">
+            <mxPoint x="25" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-14" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="90" y="380" as="sourcePoint" />
+            <mxPoint x="390" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-15" value="Continously send data (cpu, temp, ram)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Rf3BUJMmEocPuWg3irpF-14">
+          <mxGeometry x="-0.1533" y="-1" relative="1" as="geometry">
+            <mxPoint x="23" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-18" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="90" y="410" as="sourcePoint" />
+            <mxPoint x="390" y="410" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-19" value="Send keep alive messages" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Rf3BUJMmEocPuWg3irpF-18">
+          <mxGeometry x="-0.2033" relative="1" as="geometry">
+            <mxPoint x="31" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-20" value="&lt;h1&gt;Note&lt;/h1&gt;&lt;div&gt;Every communication between the Client and UserClient are sent through the server. The messages are encrypted&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="320" y="50" width="190" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-21" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="730" y="430" as="sourcePoint" />
+            <mxPoint x="390" y="430" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-22" value="Login" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Rf3BUJMmEocPuWg3irpF-21">
+          <mxGeometry x="0.101" y="1" relative="1" as="geometry">
+            <mxPoint x="18" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-23" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="390" y="460" as="sourcePoint" />
+            <mxPoint x="740" y="460" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-24" value="Confirm Login" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Rf3BUJMmEocPuWg3irpF-23">
+          <mxGeometry x="-0.0457" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-25" value="" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="390" y="490" as="sourcePoint" />
+            <mxPoint x="740" y="490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-26" value="Continously send all data from clients" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Rf3BUJMmEocPuWg3irpF-25">
+          <mxGeometry x="-0.0838" y="-3" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-27" value="&lt;h1&gt;Keep-alive&lt;/h1&gt;&lt;div&gt;The Client&#39;s Websocket don&#39;t auto disconnect on a timeout or so, so it has to be implemented.&amp;nbsp;&lt;/div&gt;&lt;div&gt;The Phone Client on the other hand automatically disconnects successfully.&lt;/div&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry y="10" width="190" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-29" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="90" y="530" as="sourcePoint" />
+            <mxPoint x="740" y="530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-30" value="Exchange public keys" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Rf3BUJMmEocPuWg3irpF-29">
+          <mxGeometry x="-0.0733" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-31" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="90" y="560" as="sourcePoint" />
+            <mxPoint x="740" y="560" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Rf3BUJMmEocPuWg3irpF-32" value="Communicate with mods through public keys" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="Rf3BUJMmEocPuWg3irpF-31">
+          <mxGeometry x="-0.0733" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
