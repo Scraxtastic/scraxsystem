@@ -1,4 +1,4 @@
-import { BasicMod } from "../client/models/BasicMod";
+import { BasicMod } from "../client/ModdingInterface/models/BasicMod";
 
 export interface BasicData {
     name: string;
