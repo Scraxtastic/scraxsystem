@@ -1,4 +1,4 @@
-import { AddModType, ModServer, OnFinishedType, OnResponseType } from "./ModServer";
+import { AddModType, ModServer, ModType, OnFinishedType, OnResponseType } from "./ModServer";
 import { ModAliveMessage } from "./models/ModAliveMessage";
 import { ModChatMessage } from "./models/ModChatMessage";
 import { ModFirstMessage } from "./models/ModFirstMessage";
@@ -15,10 +15,13 @@ export const handleMessage = (
   try {
     const decrypted: ModFirstMessage | ModAliveMessage | ModChatMessage = JSON.parse(data.toString());
     let name = "";
+    let modType: ModType = "NONE";
     if (decrypted.type === "ModFirstMessage") {
-      name = decrypted.name;
+      const firstMessage = decrypted as ModFirstMessage;
+      name = firstMessage.name;
+      modType = firstMessage.modType;
       setName(name);
-      addMod(name, (message: string, messageOrigin: string) => {
+      addMod(name, modType, (message: string, messageOrigin: string) => {
         origin = messageOrigin;
         const chatMessage: ModChatMessage = {
           name: "",

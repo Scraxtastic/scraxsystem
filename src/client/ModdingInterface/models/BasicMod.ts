@@ -1,3 +1,6 @@
+import { ModType } from "../ModServer";
+
 export interface BasicMod {
-    name: string;
+  name: string;
+  type: ModType;
 }
