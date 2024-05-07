@@ -3,7 +3,7 @@ import { ModFirstMessage } from "./models/ModFirstMessage";
 import { ModAliveMessage } from "./models/ModAliveMessage";
 import { ModChatMessage } from "./models/ModChatMessage";
 import { handleMessage } from "./ModHandleMessage";
-export type ModType = "NONE" | "Chat" | "NAS" ;
+import { ModType } from "./models/ModType";
 export type AddModType = (name: string, type: ModType, sendMessage: (message: string, origin: string) => void) => void;
 export type RemoveModType = (name: string) => void;
 export type OnResponseType = (name: string, message: string, target: string) => void;

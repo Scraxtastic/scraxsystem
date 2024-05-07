@@ -7,6 +7,7 @@ import { ModMessage } from "../models/ModMessage";
 import { getData } from "./ClientGetData";
 import fs from "fs";
 import { ConnectorType } from "../models/FirstMessageSuccess";
+import { ModType } from "./ModdingInterface/models/ModType";
 
 export const handleConnection = (
   socket: WebSocket,
@@ -47,10 +48,10 @@ export const handleConnection = (
       if (decrypted.type === "success") {
         handleSuccess();
         modServer = new ModServer(
-          (name: string, sendMessage: (message: string, origin: string) => void) => {
+          (name: string, modType: ModType, sendMessage: (message: string, origin: string) => void) => {
             //Add Mod
-            console.log("Adding", name);
-            availableMods[name] = { send: sendMessage, running: false, queue: [] };
+            console.log("Adding", name, modType);
+            availableMods[name] = { modType: modType, send: sendMessage, running: false, queue: [] };
             // const modUpdate: UpdateMods = { mods: Object.keys(availableMods), type: "updateMods" };
             // sendEncryptedMessage(socket, Buffer.from(JSON.stringify(modUpdate)), key);
           },

@@ -1,0 +1,1 @@
+export type ModType = "NONE" | "Chat" | "NAS" ;

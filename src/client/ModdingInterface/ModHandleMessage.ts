@@ -1,8 +1,9 @@
-import { AddModType, ModServer, ModType, OnFinishedType, OnResponseType } from "./ModServer";
+import { AddModType, ModServer, OnFinishedType, OnResponseType } from "./ModServer";
 import { ModAliveMessage } from "./models/ModAliveMessage";
 import { ModChatMessage } from "./models/ModChatMessage";
 import { ModFirstMessage } from "./models/ModFirstMessage";
 import WebSocket from "ws";
+import { ModType } from "./models/ModType";
 
 export const handleMessage = (
   data: Buffer,
