@@ -41,6 +41,7 @@ export const handleConnection = (
   socket.on("message", (data: Buffer) => {
     try {
       const decrypted: ErrorMessage | ConnectionMessage | ModMessage = JSON.parse(decryptMessage(data, key).toString());
+      console.log("WClient:", type, "Received data:", decrypted, "\n");
       if (decrypted.type === "error") {
         console.error("WClient:", type, "Error:", decrypted.message);
         // socket.close();
@@ -70,6 +71,7 @@ export const handleConnection = (
               modname: modname,
               type: "mod",
             };
+            console.log("Sending response", modMessage);
             sendEncryptedMessage(socket, Buffer.from(JSON.stringify(modMessage)), key);
           },
           (modname: string, target: string) => {
@@ -98,7 +100,7 @@ export const handleConnection = (
             availableMods[modMessage.modname],
             modMessage.modname
           );
-          availableMods[modMessage.modname].send(modMessage.message, modMessage.origin);
+          availableMods[modMessage.modname]?.send(modMessage.message, modMessage.origin);
         } catch (e) {
           console.log("WClient:", type, "Mod", "Error:", e.message, e.stack);
         }
