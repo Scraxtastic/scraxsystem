@@ -42,13 +42,18 @@ export class ModServer {
     webSocket.on("message", (data: Buffer) => {
       handleMessage(
         data,
+        name,
         (newName: string) => {
           name = newName;
         },
         webSocket,
         this.addMod,
         this.onResponse,
-        this.onFinished
+        this.onFinished,
+        origin,
+        (newOrigin: string) => {
+          origin = newOrigin;
+        }
       );
     });
     webSocket.on("close", () => {
