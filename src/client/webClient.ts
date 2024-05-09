@@ -8,7 +8,7 @@ import { handleConnection } from "./ClientHandleConnection";
 console.log("WClient:", "started client");
 
 const sendEncryptedMessage = (socket: WebSocket, data: Buffer, key: Buffer) => {
-  console.log("WClient:", "sending data", data.toString());
+  // console.log("WClient:", "sending data", data.toString());
   let encryptedData = encryptAndPackageData(data, key);
   for (let i = 0; i < wrapperKeys.length; i++) {
     encryptedData = encryptAndPackageData(encryptedData, Buffer.from(wrapperKeys[i], "base64"));

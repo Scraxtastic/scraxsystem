@@ -41,7 +41,7 @@ export const handleConnection = (
   socket.on("message", (data: Buffer) => {
     try {
       const decrypted: ErrorMessage | ConnectionMessage | ModMessage = JSON.parse(decryptMessage(data, key).toString());
-      console.log("WClient:", type, "Received data:", decrypted, "\n");
+      // console.log("WClient:", type, "Received data:", decrypted, "\n");
       if (decrypted.type === "error") {
         console.error("WClient:", type, "Error:", decrypted.message);
         // socket.close();
@@ -92,21 +92,21 @@ export const handleConnection = (
         try {
           const modMessage = decrypted as ModMessage;
           console.log("WClient:", type, "Received mod message:", modMessage);
-          console.log(
-            "WClient:",
-            type,
-            "Available mods:",
-            availableMods,
-            availableMods[modMessage.modname],
-            modMessage.modname
-          );
+          // console.log(
+          //   "WClient:",
+          //   type,
+          //   "Available mods:",
+          //   availableMods,
+          //   availableMods[modMessage.modname],
+          //   modMessage.modname
+          // );
           availableMods[modMessage.modname]?.send(modMessage.message, modMessage.origin);
         } catch (e) {
           console.log("WClient:", type, "Mod", "Error:", e.message, e.stack);
         }
       }
       if (type === "receiver") {
-        console.log("WClient:", type, "Received data:", decrypted);
+        // console.log("WClient:", type, "Received data:", decrypted);
         fs.writeFileSync("./output.json", JSON.stringify(decrypted));
       }
     } catch (e) {
