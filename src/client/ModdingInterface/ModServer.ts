@@ -1,7 +1,5 @@
 import { WebSocket } from "ws";
-import { ModFirstMessage } from "./models/ModFirstMessage";
 import { ModAliveMessage } from "./models/ModAliveMessage";
-import { ModChatMessage } from "./models/ModChatMessage";
 import { handleMessage } from "./ModHandleMessage";
 import { ModType } from "./models/ModType";
 export type AddModType = (name: string, type: ModType, sendMessage: (message: string, origin: string) => void) => void;
