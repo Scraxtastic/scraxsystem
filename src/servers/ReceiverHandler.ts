@@ -7,7 +7,7 @@ export const handleReceiver = (
   encryptData: (data: Buffer, key: Buffer) => Buffer
 ) => {
   const modMessage: ModMessage = JSON.parse(data);
-  if (modMessage.type === "mod") {
+  if (modMessage.type === "mod" || modMessage.type === "modFinished") {
     const manager = serverStorage.sockets[modMessage.target];
     manager.websocket.send(encryptData(Buffer.from(JSON.stringify(modMessage)), manager.key));
   }
