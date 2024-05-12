@@ -76,19 +76,20 @@ export const handleConnection = (
           },
           (modname: string, target: string) => {
             //On Finished
-            console.log("Finished");
             const modMessage: ModMessage = {
-              message: "\n",
+              message: "",
               target: target,
               origin: name,
               modname: modname,
-              type: "mod",
+              type: "modFinished",
             };
+            console.log("Finished", modMessage);
             sendEncryptedMessage(socket, Buffer.from(JSON.stringify(modMessage)), key);
           }
         );
       }
-      if (decrypted.type === "mod") {
+      if (decrypted.type === "mod" || decrypted.type === "modFinished") {
+        console.log("WServer", "Received mod message:", decrypted);
         try {
           const modMessage = decrypted as ModMessage;
           console.log("WClient:", type, "Received mod message:", modMessage);
