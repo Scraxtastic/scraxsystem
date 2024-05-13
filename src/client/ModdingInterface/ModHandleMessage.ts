@@ -38,7 +38,6 @@ export const handleMessage = (
       // console.log("Alive", name);
     } else if (decrypted.type === "ModChatMessage") {
       const chatMessage = decrypted as ModChatMessage;
-      console.log("WMod", "Chat", chatMessage.name, chatMessage.message);
       onResponse(name, chatMessage.message, origin);
     } else if (decrypted.type === "ModChatFinishedMessage") {
       onFinished(name, origin);
