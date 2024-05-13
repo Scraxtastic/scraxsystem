@@ -13,7 +13,7 @@ export const handleSender = (
     serverStorage.sockets[name].mods = (parsedData as UpdateMods).mods;
     console.log("WServer:", "Updated mods for", name, serverStorage.sockets[name].mods);
   }
-  if (parsedData.type === "mod") {
+  if (parsedData.type === "mod" || parsedData.type === "modFinished") {
     const modMessage: ModMessage = parsedData as ModMessage;
 
     const manager = serverStorage.sockets[modMessage.target];
