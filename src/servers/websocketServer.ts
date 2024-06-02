@@ -62,6 +62,7 @@ const handleNewWebsocketConnection = (webSocket: WebSocket, req: IncomingMessage
   let lastReceivedMessageTime: number = 0;
   // Interval for sending Messages (if needed to send continously)
   let interval: NodeJS.Timeout = null;
+  let closeInterval: NodeJS.Timeout = null;
   // Send data to the client
   const sendData = (data: Buffer) => {
     webSocket.send(data);
@@ -86,6 +87,7 @@ const handleNewWebsocketConnection = (webSocket: WebSocket, req: IncomingMessage
     serverStorage.connections[req.socket.remoteAddress].disconnected++;
     delete serverStorage.sockets[name];
     clearInterval(interval);
+    clearInterval(closeInterval);
   });
 
   webSocket.on("message", (hardlyEncryptedData: Buffer) => {
@@ -130,21 +132,23 @@ const handleNewWebsocketConnection = (webSocket: WebSocket, req: IncomingMessage
       messageCount++;
       connectionType = firstMessageResult.type;
       if (firstMessageResult.type === "receiver") {
-        console.log("WServer:", "Receiver connected.");
+        console.log("WServer:", `${name} connected.`);
+        const response: ConnectionMessage = { message: "Hello, World!", type: "success" };
+        sendDataEncrypted(Buffer.from(JSON.stringify(response), "utf-8"));
+        const minAliveInterval = 60;
+        closeInterval = setInterval(() => {
+          if (lastReceivedMessageTime + 60 * 1000 < new Date().getTime()) {
+            console.log(
+              "WServer:",
+              `No message received from ${name} for ${minAliveInterval} seconds. Closing connection.`
+            );
+            webSocket.close();
+          }
+        }, 10000);
         collectAndSendData();
         interval = setInterval(() => {
           collectAndSendData();
         }, 1000);
-      } else {
-        console.log("WServer:", "Sender connected.");
-        const response: ConnectionMessage = { message: "Hello, World!", type: "success" };
-        sendDataEncrypted(Buffer.from(JSON.stringify(response), "utf-8"));
-        interval = setInterval(() => {
-          if (lastReceivedMessageTime + 60000 < new Date().getTime()) {
-            console.log("WServer:", `No message received from sender for 60 seconds by ${name}. Closing connection.`);
-            webSocket.close();
-          }
-        }, 10000);
       }
       return;
     }
