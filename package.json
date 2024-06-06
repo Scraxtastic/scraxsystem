@@ -12,7 +12,9 @@
     "dev:server": "nodemon src/index.ts server",
     "dev:sender": "nodemon src/index.ts name=invader sender",
     "build": "tsc",
-    "test": "jest --detectOpenHandles"
+    "test": "jest --detectOpenHandles",
+    "docker:build": "docker build -t scraxsystem .",
+    "docker:compose": "docker-compose up --build"
   },
   "author": "",
   "license": "TODO",

@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  scraxsystemserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - modserverport=8989
+      - websocketport=8990
+      - wsAddress=wss://scrax.de:8990
+      - name=invader
+      - clientSendInterval=3000
+      - useWss=false
+      - certPath=./.env.example
+      - keyPath=./.env.example

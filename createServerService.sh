@@ -5,8 +5,9 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 START_CLIENT_SCRIPT="$SCRIPT_DIR/startServer.sh"
 chmod +x "$SCRIPT_DIR/startServer.sh"
 
+$SYSTEM_USER = "scraxsystem"
 # Get the home directory of the user running this script
-HOME_DIR=$(eval echo ~$USER)
+HOME_DIR=$(eval echo ~$SYSTEM_USER)
 
 # Create the systemd service file
 SERVICE_FILE=/etc/systemd/system/scraxserviceServer.service
@@ -20,6 +21,7 @@ ExecStart=$START_CLIENT_SCRIPT
 Restart=always
 # Restart service after 10 seconds if the node service crashes:
 RestartSec=10
+User=$SYSTEM_USER
 
 [Install]
 WantedBy=multi-user.target" | sudo tee $SERVICE_FILE
