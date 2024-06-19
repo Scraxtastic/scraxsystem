@@ -13,7 +13,6 @@ export const handleConnection = (
   socket: WebSocket,
   key: Buffer,
   name: string,
-  type: ConnectorType,
   sendEncryptedMessage: (socket: WebSocket, data: Buffer, key: Buffer) => void,
   decryptMessage: (data: Buffer, key: Buffer) => Buffer
 ) => {
@@ -21,29 +20,30 @@ export const handleConnection = (
   let lastData: string = "";
   let lastMessageSent: number = 0;
   let modServer: ModServer = null;
-  const availableMods: any = {};
+  let availableMods: any = {};
   socket.on("open", () => {
-    console.log("WClient:", type, "Connected to server.");
-    const loginMessage: LoginData = { name, type };
+    console.log("WClient:", "Connected to server.");
+    const loginMessage: LoginData = { name, type: "sender" };
     sendEncryptedMessage(socket, Buffer.from(JSON.stringify(loginMessage)), key);
   });
 
   socket.on("error", (err) => {
-    console.log("WClient:", type, "Socket error:", err.name, err.message);
+    console.log("WClient:", "Socket error:", err.name, err.message);
     console.log(err.stack);
     process.exit(1);
   });
 
   socket.on("unexpected-response", (req, res) => {
-    console.log("WClient:", type, "Unexpected response:", res);
+    console.log("WClient:", "Unexpected response:", res);
   });
 
   socket.on("message", (data: Buffer) => {
+    console.log("Creating ModServer");
     try {
       const decrypted: ErrorMessage | ConnectionMessage | ModMessage = JSON.parse(decryptMessage(data, key).toString());
       // console.log("WClient:", type, "Received data:", decrypted, "\n");
       if (decrypted.type === "error") {
-        console.error("WClient:", type, "Error:", decrypted.message);
+        console.error("WClient:", "Error:", decrypted.message);
         // socket.close();
       }
       if (decrypted.type === "success") {
@@ -53,6 +53,7 @@ export const handleConnection = (
             //Add Mod
             console.log("Adding", name, modType);
             availableMods[name] = { modType: modType, send: sendMessage, running: false, queue: [] };
+            console.log("WClient", "ClienHandleConnection", "Available Mods", availableMods);
             // const modUpdate: UpdateMods = { mods: Object.keys(availableMods), type: "updateMods" };
             // sendEncryptedMessage(socket, Buffer.from(JSON.stringify(modUpdate)), key);
           },
@@ -92,27 +93,25 @@ export const handleConnection = (
         console.log("WServer", "Received mod message:", decrypted);
         try {
           const modMessage = decrypted as ModMessage;
-          console.log("WClient:", type, "Received mod message:", modMessage);
-          // console.log(
-          //   "WClient:",
-          //   type,
-          //   "Available mods:",
-          //   availableMods,
-          //   availableMods[modMessage.modname],
-          //   modMessage.modname
-          // );
+          console.log("WClient:", "Received mod message:", modMessage);
+          console.log(
+            "WClient:",
+            "Available mods:",
+            availableMods,
+            availableMods[modMessage.modname],
+            modMessage.modname
+          );
+          console.log("Sending to", availableMods[modMessage.modname], availableMods);
           availableMods[modMessage.modname]?.send(modMessage.message, modMessage.origin);
         } catch (e) {
-          console.log("WClient:", type, "Mod", "Error:", e.message, e.stack);
+          console.log("WClient:", "Mod", "Error:", e.message, e.stack);
         }
       }
-      if (type === "receiver") {
-        // console.log("WClient:", type, "Received data:", decrypted);
-        fs.writeFileSync("./output.json", JSON.stringify(decrypted));
-      }
+      // console.log("WClient:", type, "Received data:", decrypted);
+      fs.writeFileSync("./output.json", JSON.stringify(decrypted));
     } catch (e) {
       //TODO: Implement server side error handling
-      console.log("WClient:", type, "Error:", e.message, e.stack);
+      console.log("WClient:", "Error:", e.message, e.stack);
       const errorMessage: ErrorMessage = { message: "Decryption failed.", type: "error" };
       sendEncryptedMessage(socket, Buffer.from(JSON.stringify(errorMessage)), key);
       // socket.close();
@@ -120,18 +119,15 @@ export const handleConnection = (
   });
 
   socket.on("close", () => {
-    console.log("WClient:", type, "Socket closed.");
+    console.log("WClient:", "Socket closed.");
     clearInterval(interval);
     process.exit(1);
   });
   const handleSuccess = async () => {
-    if (type !== "sender") {
-      return;
-    }
     if (interval !== null) {
       return;
     }
-    console.log("WClient:", type, "Handling success");
+    console.log("WClient:", "Handling success");
 
     sendEncryptedMessage(socket, Buffer.from(await getData(name, availableMods)), key);
     const intervalTime = +process.env.clientSendInterval || 1000;

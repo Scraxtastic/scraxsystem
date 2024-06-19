@@ -43,6 +43,7 @@ export class ModServer {
         name,
         (newName: string) => {
           name = newName;
+          console.log("NewName: ", name)
         },
         webSocket,
         this.addMod,

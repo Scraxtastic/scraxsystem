@@ -14,6 +14,7 @@ const sendEncryptedMessage = (socket: WebSocket, data: Buffer, key: Buffer) => {
     encryptedData = encryptAndPackageData(encryptedData, Buffer.from(wrapperKeys[i], "base64"));
   }
   socket.send(encryptedData);
+  console.log("Sending Message");
 };
 
 const decryptMessage = (hardlyEncryptedData: Buffer, key: Buffer) => {
@@ -25,13 +26,13 @@ const decryptMessage = (hardlyEncryptedData: Buffer, key: Buffer) => {
   return data;
 };
 
-const startClient = (name: string, type: ConnectorType) => {
+const startClient = (name: string) => {
   const serverip = process.env.wsAddress || "localhost";
   console.log("WClient:", "connecting to ", serverip);
   const key = getKey(name);
   console.log("WClient", `key ${name} retrieved`);
   const socket = new WebSocket(serverip);
-  handleConnection(socket, key, name, type, sendEncryptedMessage, decryptMessage);
+  handleConnection(socket, key, name, sendEncryptedMessage, decryptMessage);
 };
 
 setTimeout(() => {
@@ -57,10 +58,5 @@ setTimeout(() => {
     process.exit(1);
   }
   console.log("WClient:", "name:", name);
-  if (hasSender) {
-    startClient(name, "sender");
-  }
-  if (hasReceiver) {
-    startClient(name, "receiver");
-  }
+  startClient(name);
 }, 1000);
